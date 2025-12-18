@@ -1,14 +1,14 @@
 const express = require("express");
 const router = express.Router();
-const Contact = require("../Models/contactModel"); // Create schema
+const { createContact, getAllContacts, deleteContact } = require("../Controllers/contactController");
 
-router.post("/", async (req, res) => {
-  try {
-    const contact = await Contact.create(req.body);
-    res.status(201).json({ message: "Message sent successfully", data: contact });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
+// POST /api/contact - Create contact
+router.post("/", createContact);
+
+// GET /api/contact - Get all contacts (Admin)
+router.get("/", getAllContacts);
+
+// DELETE /api/contact/:id - Delete contact (Admin)
+router.delete("/:id", deleteContact);
 
 module.exports = router;

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MERN Stack Full Flow Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; }
+        .success { color: green; }
+        .error { color: red; }
+        button { margin: 5px; padding: 10px; }
+        pre { background: #f5f5f5; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🧪 MERN Stack Full Flow Test</h1>
+    
+    <div class="test-section">
+        <h3>1. Test Backend Connection</h3>
+        <button onclick="testConnection()">Test Connection</button>
+        <div id="connection-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Test User Signup</h3>
+        <button onclick="testSignup()">Test Signup</button>
+        <div id="signup-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Test User Login</h3>
+        <button onclick="testLogin()">Test Login</button>
+        <div id="login-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Test Contact Form</h3>
+        <button onclick="testContact()">Test Contact</button>
+        <div id="contact-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Test Admin Login</h3>
+        <button onclick="testAdminLogin()">Test Admin Login</button>
+        <div id="admin-login-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>6. Test Get Users (Admin)</h3>
+        <button onclick="testGetUsers()">Get Users</button>
+        <div id="users-result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+
+        async function testConnection() {
+            try {
+                const response = await fetch(`${API_BASE}/test`);
+                const data = await response.json();
+                document.getElementById('connection-result').innerHTML = 
+                    `<div class="success">✅ ${data.message}</div>`;
+            } catch (error) {
+                document.getElementById('connection-result').innerHTML = 
+                    `<div class="error">❌ Connection failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testSignup() {
+            try {
+                const userData = {
+                    firstname: 'Test',
+                    lastname: 'User',
+                    email: 'test@example.com',
+                    phone: '1234567890',
+                    password: 'password123'
+                };
+
+                const response = await fetch(`${API_BASE}/signup`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+
+                const data = await response.json();
+                document.getElementById('signup-result').innerHTML = 
+                    `<div class="${data.success ? 'success' : 'error'}">
+                        ${data.success ? '✅' : '❌'} ${data.message}
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+            } catch (error) {
+                document.getElementById('signup-result').innerHTML = 
+                    `<div class="error">❌ Signup failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testLogin() {
+            try {
+                const credentials = {
+                    email: 'test@example.com',
+                    password: 'password123'
+                };
+
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(credentials)
+                });
+
+                const data = await response.json();
+                document.getElementById('login-result').innerHTML = 
+                    `<div class="${data.success ? 'success' : 'error'}">
+                        ${data.success ? '✅' : '❌'} ${data.message}
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+            } catch (error) {
+                document.getElementById('login-result').innerHTML = 
+                    `<div class="error">❌ Login failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testContact() {
+            try {
+                const contactData = {
+                    name: 'Test Contact',
+                    email: 'contact@example.com',
+                    phone: '9876543210',
+                    subject: 'Test Message',
+                    message: 'This is a test contact message'
+                };
+
+                const response = await fetch(`${API_BASE}/contact`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(contactData)
+                });
+
+                const data = await response.json();
+                document.getElementById('contact-result').innerHTML = 
+                    `<div class="${data.success ? 'success' : 'error'}">
+                        ${data.success ? '✅' : '❌'} ${data.message}
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+            } catch (error) {
+                document.getElementById('contact-result').innerHTML = 
+                    `<div class="error">❌ Contact failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testAdminLogin() {
+            try {
+                const adminCredentials = {
+                    username: 'admin',
+                    password: 'admin123'
+                };
+
+                const response = await fetch(`${API_BASE}/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(adminCredentials)
+                });
+
+                const data = await response.json();
+                document.getElementById('admin-login-result').innerHTML = 
+                    `<div class="${response.ok ? 'success' : 'error'}">
+                        ${response.ok ? '✅' : '❌'} Admin Login
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+            } catch (error) {
+                document.getElementById('admin-login-result').innerHTML = 
+                    `<div class="error">❌ Admin login failed: ${error.message}</div>`;
+            }
+        }
+
+        async function testGetUsers() {
+            try {
+                const response = await fetch(`${API_BASE}/admin/users`);
+                const data = await response.json();
+                
+                document.getElementById('users-result').innerHTML = 
+                    `<div class="${data.success ? 'success' : 'error'}">
+                        ${data.success ? '✅' : '❌'} Users Retrieved: ${data.data ? data.data.length : 0}
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    </div>`;
+            } catch (error) {
+                document.getElementById('users-result').innerHTML = 
+                    `<div class="error">❌ Get users failed: ${error.message}</div>`;
+            }
+        }
+    </script>
+</body>
+</html>

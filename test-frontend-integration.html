@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test - Cart, Login, Signup</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin: 10px 0; padding: 10px; background: #f8f9fa; border-left: 4px solid #007bff; }
+        .error { border-left-color: #dc3545; background: #f8d7da; }
+        .success { border-left-color: #28a745; background: #d4edda; }
+        input, textarea { width: 300px; padding: 8px; margin: 5px 0; }
+    </style>
+</head>
+<body>
+    <h1>🧪 API Endpoint Testing</h1>
+    
+    <!-- Test Database Connection -->
+    <div class="section">
+        <h2>🔍 Database Verification</h2>
+        <button onclick="testDatabase()">Test Database Connection</button>
+        <div id="dbResult" class="result"></div>
+    </div>
+
+    <!-- Test User Signup -->
+    <div class="section">
+        <h2>👤 User Signup Test</h2>
+        <input type="text" id="firstname" placeholder="First Name" value="Test"><br>
+        <input type="text" id="lastname" placeholder="Last Name" value="User"><br>
+        <input type="email" id="email" placeholder="Email" value="testuser@example.com"><br>
+        <input type="tel" id="phone" placeholder="Phone" value="1234567890"><br>
+        <input type="password" id="password" placeholder="Password" value="password123"><br>
+        <button onclick="testSignup()">Test Signup</button>
+        <div id="signupResult" class="result"></div>
+    </div>
+
+    <!-- Test User Login -->
+    <div class="section">
+        <h2>🔑 User Login Test</h2>
+        <input type="email" id="loginEmail" placeholder="Email" value="testuser@example.com"><br>
+        <input type="password" id="loginPassword" placeholder="Password" value="password123"><br>
+        <button onclick="testLogin()">Test Login</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <!-- Test Admin Login -->
+    <div class="section">
+        <h2>👑 Admin Login Test</h2>
+        <input type="text" id="adminUsername" placeholder="Username" value="admin"><br>
+        <input type="password" id="adminPassword" placeholder="Password" value="admin123"><br>
+        <button onclick="testAdminLogin()">Test Admin Login</button>
+        <div id="adminResult" class="result"></div>
+    </div>
+
+    <!-- Test Add to Cart -->
+    <div class="section">
+        <h2>🛒 Add to Cart Test</h2>
+        <input type="text" id="userId" placeholder="User ID" value="test-user-123"><br>
+        <input type="text" id="productId" placeholder="Product ID" value="prod-456"><br>
+        <input type="text" id="productName" placeholder="Product Name" value="Test Product"><br>
+        <input type="number" id="price" placeholder="Price" value="99.99"><br>
+        <input type="number" id="quantity" placeholder="Quantity" value="1"><br>
+        <button onclick="testAddToCart()">Add to Cart</button>
+        <div id="cartResult" class="result"></div>
+    </div>
+
+    <!-- Test Get Cart Items -->
+    <div class="section">
+        <h2>📋 Get Cart Items Test</h2>
+        <input type="text" id="getUserId" placeholder="User ID" value="test-user-123"><br>
+        <button onclick="testGetCart()">Get Cart Items</button>
+        <div id="getCartResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+
+        async function makeRequest(url, method = 'GET', data = null) {
+            try {
+                const options = {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                    }
+                };
+                
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                const response = await fetch(url, options);
+                const result = await response.json();
+                
+                return {
+                    success: response.ok,
+                    status: response.status,
+                    data: result
+                };
+            } catch (error) {
+                return {
+                    success: false,
+                    error: error.message
+                };
+            }
+        }
+
+        function displayResult(elementId, result, operation) {
+            const element = document.getElementById(elementId);
+            
+            if (result.success) {
+                element.className = 'result success';
+                element.innerHTML = `
+                    <strong>✅ ${operation} Successful!</strong><br>
+                    <strong>Status:</strong> ${result.status}<br>
+                    <strong>Response:</strong><br>
+                    <pre>${JSON.stringify(result.data, null, 2)}</pre>
+                `;
+            } else {
+                element.className = 'result error';
+                element.innerHTML = `
+                    <strong>❌ ${operation} Failed!</strong><br>
+                    <strong>Status:</strong> ${result.status || 'Network Error'}<br>
+                    <strong>Error:</strong> ${result.error || result.data?.message || 'Unknown error'}<br>
+                    <strong>Response:</strong><br>
+                    <pre>${JSON.stringify(result.data || result.error, null, 2)}</pre>
+                `;
+            }
+        }
+
+        async function testDatabase() {
+            const result = await makeRequest(`${API_BASE}/verify-db`);
+            displayResult('dbResult', result, 'Database Verification');
+        }
+
+        async function testSignup() {
+            const data = {
+                firstname: document.getElementById('firstname').value,
+                lastname: document.getElementById('lastname').value,
+                email: document.getElementById('email').value,
+                phone: parseInt(document.getElementById('phone').value),
+                password: document.getElementById('password').value
+            };
+            
+            const result = await makeRequest(`${API_BASE}/signup`, 'POST', data);
+            displayResult('signupResult', result, 'User Signup');
+        }
+
+        async function testLogin() {
+            const data = {
+                email: document.getElementById('loginEmail').value,
+                password: document.getElementById('loginPassword').value
+            };
+            
+            const result = await makeRequest(`${API_BASE}/auth/login`, 'POST', data);
+            displayResult('loginResult', result, 'User Login');
+        }
+
+        async function testAdminLogin() {
+            const data = {
+                username: document.getElementById('adminUsername').value,
+                password: document.getElementById('adminPassword').value
+            };
+            
+            const result = await makeRequest(`${API_BASE}/admin/login`, 'POST', data);
+            displayResult('adminResult', result, 'Admin Login');
+        }
+
+        async function testAddToCart() {
+            const data = {
+                userId: document.getElementById('userId').value,
+                productId: document.getElementById('productId').value,
+                productName: document.getElementById('productName').value,
+                price: parseFloat(document.getElementById('price').value),
+                quantity: parseInt(document.getElementById('quantity').value)
+            };
+            
+            const result = await makeRequest(`${API_BASE}/cart/add`, 'POST', data);
+            displayResult('cartResult', result, 'Add to Cart');
+        }
+
+        async function testGetCart() {
+            const userId = document.getElementById('getUserId').value;
+            const result = await makeRequest(`${API_BASE}/cart/${userId}`);
+            displayResult('getCartResult', result, 'Get Cart Items');
+        }
+    </script>
+</body>
+</html>

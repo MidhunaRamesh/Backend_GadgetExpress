@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Flow Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        button { padding: 10px 15px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .result { margin-top: 10px; padding: 10px; background: #f8f9fa; border-radius: 3px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🧪 MERN Stack API Flow Test</h1>
+    <p>Open browser console (F12) to see detailed logs</p>
+
+    <div class="test-section">
+        <h3>1. Test Backend Connection</h3>
+        <button onclick="testConnection()">Test Connection</button>
+        <div id="connectionResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Test Contact Form</h3>
+        <button onclick="testContact()">Submit Test Contact</button>
+        <div id="contactResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Test User Signup</h3>
+        <button onclick="testSignup()">Test User Signup</button>
+        <div id="signupResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Test User Login</h3>
+        <button onclick="testLogin()">Test User Login</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Test Admin Login</h3>
+        <button onclick="testAdminLogin()">Test Admin Login</button>
+        <div id="adminResult" class="result"></div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:5000/api';
+
+        async function makeRequest(url, method = 'GET', data = null) {
+            console.log(`🚀 Making ${method} request to: ${url}`);
+            if (data) console.log('📦 Request data:', data);
+
+            try {
+                const options = {
+                    method,
+                    headers: { 'Content-Type': 'application/json' }
+                };
+                
+                if (data) {
+                    options.body = JSON.stringify(data);
+                }
+
+                const response = await fetch(url, options);
+                console.log(`📡 Response status: ${response.status}`);
+                
+                const result = await response.json();
+                console.log('📋 Response data:', result);
+                
+                return { success: response.ok, data: result, status: response.status };
+            } catch (error) {
+                console.error('💥 Request failed:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function testConnection() {
+            console.log('\n🔍 TESTING BACKEND CONNECTION');
+            const result = await makeRequest(`${API_BASE}/test`);
+            
+            const resultDiv = document.getElementById('connectionResult');
+            if (result.success) {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `✅ Backend connected: ${result.data.message}`;
+            } else {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ Connection failed: ${result.error || 'Unknown error'}`;
+            }
+        }
+
+        async function testContact() {
+            console.log('\n📞 TESTING CONTACT FORM');
+            const contactData = {
+                name: 'Test User',
+                email: 'test@example.com',
+                phone: '1234567890',
+                subject: 'Test Subject',
+                message: 'This is a test message from the API flow test.'
+            };
+
+            const result = await makeRequest(`${API_BASE}/contact`, 'POST', contactData);
+            
+            const resultDiv = document.getElementById('contactResult');
+            if (result.success) {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `✅ Contact submitted: ${result.data.message || 'Success'}`;
+            } else {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ Contact failed: ${result.error || result.data?.message || 'Unknown error'}`;
+            }
+        }
+
+        async function testSignup() {
+            console.log('\n✨ TESTING USER SIGNUP');
+            const signupData = {
+                firstname: 'Test',
+                lastname: 'User',
+                email: `test${Date.now()}@example.com`, // Unique email
+                phone: '1234567890',
+                password: 'testpass123'
+            };
+
+            const result = await makeRequest(`${API_BASE}/signup`, 'POST', signupData);
+            
+            const resultDiv = document.getElementById('signupResult');
+            if (result.success) {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `✅ Signup successful: ${result.data.message || 'User created'}`;
+            } else {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ Signup failed: ${result.error || result.data?.message || 'Unknown error'}`;
+            }
+        }
+
+        async function testLogin() {
+            console.log('\n🔑 TESTING USER LOGIN');
+            const loginData = {
+                email: 'test@example.com',
+                password: 'testpass123'
+            };
+
+            const result = await makeRequest(`${API_BASE}/auth/login`, 'POST', loginData);
+            
+            const resultDiv = document.getElementById('loginResult');
+            if (result.success) {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `✅ Login successful: ${result.data.message || 'Logged in'}`;
+            } else {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ Login failed: ${result.error || result.data?.message || 'Invalid credentials'}`;
+            }
+        }
+
+        async function testAdminLogin() {
+            console.log('\n🛠️ TESTING ADMIN LOGIN');
+            const adminData = {
+                username: 'admin',
+                password: 'admin123'
+            };
+
+            const result = await makeRequest(`${API_BASE}/admin/login`, 'POST', adminData);
+            
+            const resultDiv = document.getElementById('adminResult');
+            if (result.success) {
+                resultDiv.className = 'result success';
+                resultDiv.innerHTML = `✅ Admin login successful: ${result.data.message || 'Admin logged in'}`;
+            } else {
+                resultDiv.className = 'result error';
+                resultDiv.innerHTML = `❌ Admin login failed: ${result.error || result.data?.message || 'Invalid credentials'}`;
+            }
+        }
+
+        // Auto-test connection on page load
+        window.onload = () => {
+            console.log('🎯 API Flow Test Page Loaded');
+            console.log('📋 Available tests: Connection, Contact, Signup, Login, Admin Login');
+            testConnection();
+        };
+    </script>
+</body>
+</html>

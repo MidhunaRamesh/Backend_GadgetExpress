@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Backend Logging</title>
+</head>
+<body>
+    <h1>Test Backend Logging</h1>
+    
+    <button onclick="testGet()">Test GET Request</button>
+    <button onclick="testPost()">Test POST Request</button>
+    
+    <div id="result"></div>
+
+    <script>
+        async function testGet() {
+            const response = await fetch('http://localhost:5000/api/test');
+            const data = await response.json();
+            document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+
+        async function testPost() {
+            const response = await fetch('http://localhost:5000/api/test-input', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    email: 'test@example.com',
+                    password: 'testpass123',
+                    name: 'Test User'
+                })
+            });
+            const data = await response.json();
+            document.getElementById('result').innerHTML = '<pre>' + JSON.stringify(data, null, 2) + '</pre>';
+        }
+    </script>
+</body>
+</html>
