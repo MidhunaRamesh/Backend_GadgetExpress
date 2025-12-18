@@ -245,9 +245,23 @@ app.use((err, req, res, next) => {
 /* =========================
    DATABASE CONNECTION
 ========================= */
+const getMongoUri = () => {
+  const raw = process.env.MONGO_URL || process.env.MONGODB_URI || '';
+  const uri = raw.trim().replace(/^['"]|['"]$/g, '');
+  if (!uri) {
+    throw new Error('Missing MONGO_URL or MONGODB_URI environment variable');
+  }
+  if (!/^mongodb(\+srv)?:\/\//.test(uri)) {
+    throw new Error(`Invalid scheme, expected connection string to start with "mongodb://" or "mongodb+srv://". Got: "${uri.slice(0, 16)}..."`);
+  }
+  return uri;
+};
+
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URL, {
+    const uri = getMongoUri();
+    console.log('🔗 MongoDB URI scheme:', uri.startsWith('mongodb+srv://') ? 'mongodb+srv' : 'mongodb');
+    await mongoose.connect(uri, {
       serverSelectionTimeoutMS: 10000,
       socketTimeoutMS: 45000
     });
@@ -258,7 +272,7 @@ const connectDB = async () => {
     console.log("1. 🌐 Add your IP to MongoDB Atlas whitelist:");
     console.log("   → Go to Network Access in Atlas Dashboard");
     console.log("   → Click 'Add IP Address' → 'Add Current IP'");
-    console.log("2. 🔗 Verify connection string in .env file");
+    console.log("2. 🔗 Verify connection string in .env file (no quotes, no spaces)");
     console.log("3. 🌍 Check internet connection");
     console.log("4. 🔑 Verify database user credentials");
     process.exit(1);
